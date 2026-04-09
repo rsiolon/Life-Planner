@@ -19,6 +19,9 @@
   --yearly-color:  #4527A0;
   --yearly-light:  #EDE7F6;
 
+  --monthly-color: #1565C0;
+  --monthly-light: #E3F2FD;
+
   --bg:         #F7F5F3;
   --surface:    #FFFFFF;
   --border:     #E8E4E0;
@@ -310,10 +313,13 @@ html, body {
 .pbar.yearly  { background: var(--yearly-light); }
 .pbar-fill.daily  { background: var(--daily-color); }
 .pbar-fill.weekly { background: var(--weekly-color); }
-.pbar-fill.yearly { background: var(--yearly-color); }
-.cat-pct.daily  { color: var(--daily-color); }
-.cat-pct.weekly { color: var(--weekly-color); }
-.cat-pct.yearly { color: var(--yearly-color); }
+.pbar-fill.yearly   { background: var(--yearly-color); }
+.pbar.monthly       { background: var(--monthly-light); }
+.pbar-fill.monthly  { background: var(--monthly-color); }
+.cat-pct.daily   { color: var(--daily-color); }
+.cat-pct.weekly  { color: var(--weekly-color); }
+.cat-pct.monthly { color: var(--monthly-color); }
+.cat-pct.yearly  { color: var(--yearly-color); }
 
 
 /* ── GOAL LIST ────────────────────────────────────────────────── */
@@ -352,7 +358,8 @@ html, body {
 .chk.on        { background: var(--red);           border-color: var(--red); }
 .chk.on.daily  { background: var(--daily-color);   border-color: var(--daily-color); }
 .chk.on.weekly { background: var(--weekly-color);  border-color: var(--weekly-color); }
-.chk.on.yearly { background: var(--yearly-color);  border-color: var(--yearly-color); }
+.chk.on.yearly  { background: var(--yearly-color);  border-color: var(--yearly-color); }
+.chk.on.monthly { background: var(--monthly-color); border-color: var(--monthly-color); }
 
 .chk.on::after {
   content: '';

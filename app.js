@@ -47,6 +47,26 @@ const DEFAULT = {
       { id: 14, text: 'Quality time teman',   streak: 0, history: [] },
     ],
   },
+  monthly: {
+    ibadah:    [],
+    kesehatan: [
+      { id: 30, text: 'Timbang badan & ukur progress', streak: 0, history: [] },
+    ],
+    karir:     [
+      { id: 31, text: 'Review & set goals bulan depan', streak: 0, history: [] },
+      { id: 32, text: 'Belajar skill baru (1 modul)',   streak: 0, history: [] },
+    ],
+    keuangan:  [
+      { id: 33, text: 'Nabung sesuai target',           streak: 0, history: [] },
+      { id: 34, text: 'Review pengeluaran bulanan',     streak: 0, history: [] },
+    ],
+    personal:  [
+      { id: 35, text: 'Liburan / me-time bulanan',      streak: 0, history: [] },
+    ],
+    sosial:    [
+      { id: 36, text: 'Gathering keluarga / teman',     streak: 0, history: [] },
+    ],
+  },
   yearly: {
     ibadah:    [],
     kesehatan: [
@@ -71,7 +91,7 @@ const DEFAULT = {
 // ── STATE ───────────────────────────────────────────────────────
 let state = {};
 let currentTab = 'dashboard';
-let expandedCats = { dashboard: {}, daily: {}, weekly: {}, yearly: {} };
+let expandedCats = { dashboard: {}, daily: {}, weekly: {}, monthly: {}, yearly: {} };
 let modalContext = { tab: null, catId: null, goalType: 'once' };
 let calendarContext = { tab: null, catId: null, goalId: null };
 let progressContext = { catId: null, goalId: null };
@@ -85,6 +105,17 @@ let toastTimer;
 function today() {
   const d = new Date();
   return d.toISOString().split('T')[0];
+}
+
+// Dapet key bulan ini: "2025-04"
+function thisMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function getMonthLabel() {
+  const d = new Date();
+  return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 }
 
 // Dapet key minggu ini: "2025-W03"
@@ -130,6 +161,24 @@ function saveData() {
 // ── HITUNG STREAK ───────────────────────────────────────────────
 // Streak = berapa hari/minggu berturut-turut lo centang
 
+function calcMonthlyStreak(history) {
+  if (!history || history.length === 0) return 0;
+  const sorted = [...history].sort().reverse();
+  let streak = 0;
+  const now = new Date();
+  let year  = now.getFullYear();
+  let month = now.getMonth() + 1;
+  for (let i = 0; i < 24; i++) {
+    const key = year + '-' + String(month).padStart(2, '0');
+    if (sorted.includes(key)) {
+      streak++;
+      month--;
+      if (month === 0) { month = 12; year--; }
+    } else break;
+  }
+  return streak;
+}
+
 function calcStreak(history, isWeekly) {
   if (!history || history.length === 0) return 0;
 
@@ -162,7 +211,7 @@ function calcStreak(history, isWeekly) {
 
 function getBestStreak() {
   let best = 0;
-  ['daily', 'weekly'].forEach(tab => {
+  ['daily', 'weekly', 'monthly'].forEach(tab => {
     CATS.forEach(cat => {
       const goals = state[tab][cat.id] || [];
       goals.forEach(g => {
@@ -176,8 +225,11 @@ function getBestStreak() {
 
 
 // ── HITUNG PROGRESS ─────────────────────────────────────────────
-function isDoneToday(goal, isWeekly) {
-  const key = isWeekly ? thisWeek() : today();
+function isDoneToday(goal, type) {
+  let key;
+  if (type === 'weekly')  key = thisWeek();
+  else if (type === 'monthly') key = thisMonth();
+  else key = today();
   return goal.history && goal.history.includes(key);
 }
 
@@ -192,10 +244,9 @@ function calcTabProgress(tab) {
         if (g.type === 'number' && g.current >= g.target) done++;
       });
     } else {
-      const isWeekly = tab === 'weekly';
       goals.forEach(g => {
         total++;
-        if (isDoneToday(g, isWeekly)) done++;
+        if (isDoneToday(g, tab)) done++;
       });
     }
   });
@@ -206,13 +257,12 @@ function calcCatTabProgress(tab, catId) {
   const goals = state[tab][catId] || [];
   if (!goals.length) return { total: 0, done: 0, pct: 0 };
   let done = 0;
-  const isWeekly = tab === 'weekly';
   goals.forEach(g => {
     if (tab === 'yearly') {
       if (g.type === 'once' && g.done) done++;
       if (g.type === 'number' && g.current >= g.target) done++;
     } else {
-      if (isDoneToday(g, isWeekly)) done++;
+      if (isDoneToday(g, tab)) done++;
     }
   });
   return { total: goals.length, done, pct: Math.round(done / goals.length * 100) };
@@ -242,6 +292,7 @@ function render() {
   if (currentTab === 'dashboard') renderDashboard();
   if (currentTab === 'daily')     renderHabitTab('daily');
   if (currentTab === 'weekly')    renderHabitTab('weekly');
+  if (currentTab === 'monthly')   renderHabitTab('monthly');
   if (currentTab === 'yearly')    renderYearly();
 }
 
@@ -261,16 +312,18 @@ function renderDashboard() {
   // Overall bar = rata-rata semua tab
   const d = calcTabProgress('daily');
   const w = calcTabProgress('weekly');
+  const m = calcTabProgress('monthly');
   const y = calcTabProgress('yearly');
-  const overallPct = Math.round((d.pct + w.pct + y.pct) / 3);
+  const overallPct = Math.round((d.pct + w.pct + m.pct + y.pct) / 4);
   document.getElementById('headerPct').textContent  = overallPct + '%';
   document.getElementById('overallBar').style.width = overallPct + '%';
 
   // Summary cards
   const tabs = [
-    { id: 'daily',  pctEl: 'dashDailyPct',  barEl: 'dashDailyBar' },
-    { id: 'weekly', pctEl: 'dashWeeklyPct', barEl: 'dashWeeklyBar' },
-    { id: 'yearly', pctEl: 'dashYearlyPct', barEl: 'dashYearlyBar' },
+    { id: 'daily',   pctEl: 'dashDailyPct',   barEl: 'dashDailyBar' },
+    { id: 'weekly',  pctEl: 'dashWeeklyPct',  barEl: 'dashWeeklyBar' },
+    { id: 'monthly', pctEl: 'dashMonthlyPct', barEl: 'dashMonthlyBar' },
+    { id: 'yearly',  pctEl: 'dashYearlyPct',  barEl: 'dashYearlyBar' },
   ];
   tabs.forEach(t => {
     const p = calcTabProgress(t.id);
@@ -282,12 +335,13 @@ function renderDashboard() {
   const list = document.getElementById('dashCatList');
   list.innerHTML = '';
   CATS.forEach(cat => {
-    const d = calcCatTabProgress('daily',  cat.id);
-    const w = calcCatTabProgress('weekly', cat.id);
-    const y = calcCatTabProgress('yearly', cat.id);
-    const total = d.total + w.total + y.total;
+    const d = calcCatTabProgress('daily',   cat.id);
+    const w = calcCatTabProgress('weekly',  cat.id);
+    const mo = calcCatTabProgress('monthly', cat.id);
+    const y = calcCatTabProgress('yearly',  cat.id);
+    const total = d.total + w.total + mo.total + y.total;
     if (total === 0) return;
-    const done  = d.done  + w.done  + y.done;
+    const done  = d.done  + w.done  + mo.done  + y.done;
     const pct   = Math.round(done / total * 100);
 
     const card = document.createElement('div');
@@ -311,20 +365,27 @@ function renderDashboard() {
 
 // ── RENDER DAILY / WEEKLY ────────────────────────────────────────
 function renderHabitTab(tab) {
-  const isWeekly = tab === 'weekly';
   const listEl   = document.getElementById(tab + 'CatList');
   const dateEl   = document.getElementById(tab + 'DateHeader');
   const prog     = calcTabProgress(tab);
 
-  // Header
-  document.getElementById('headerTitle').textContent = isWeekly ? 'Weekly Habits' : 'Daily Habits';
-  document.getElementById('headerSub').textContent   = isWeekly ? getWeekLabel() : formatDate(today());
+  const titles = { daily: 'Daily Habits', weekly: 'Weekly Habits', monthly: 'Monthly Habits' };
+  const subs   = {
+    daily:   formatDate(today()),
+    weekly:  getWeekLabel(),
+    monthly: getMonthLabel(),
+  };
+  const dateLabels = {
+    daily:   'Hari ini: '   + formatDate(today()),
+    weekly:  'Minggu ini: ' + getWeekLabel(),
+    monthly: 'Bulan ini: '  + getMonthLabel(),
+  };
+
+  document.getElementById('headerTitle').textContent = titles[tab];
+  document.getElementById('headerSub').textContent   = subs[tab];
   document.getElementById('headerPct').textContent   = prog.pct + '%';
   document.getElementById('overallBar').style.width  = prog.pct + '%';
-
-  dateEl.textContent = isWeekly
-    ? 'Minggu ini: ' + getWeekLabel()
-    : 'Hari ini: ' + formatDate(today());
+  dateEl.textContent = dateLabels[tab];
 
   listEl.innerHTML = '';
 
@@ -332,6 +393,7 @@ function renderHabitTab(tab) {
     const goals = state[tab][cat.id] || [];
     const { total, done, pct } = calcCatTabProgress(tab, cat.id);
     const isOpen = expandedCats[tab][cat.id];
+    const periodLabel = { daily: 'hari ini', weekly: 'minggu ini', monthly: 'bulan ini' }[tab];
 
     const card = document.createElement('div');
     card.className = 'cat-card';
@@ -341,7 +403,7 @@ function renderHabitTab(tab) {
           <div class="cat-icon" style="background:${cat.bg}">${cat.icon}</div>
           <div class="cat-info">
             <div class="cat-name">${cat.label}</div>
-            <div class="cat-count">${done} dari ${total} selesai hari ini</div>
+            <div class="cat-count">${done} dari ${total} selesai ${periodLabel}</div>
           </div>
           <div class="cat-pct ${tab}">${pct}%</div>
           <div class="cat-chevron ${isOpen ? 'open' : ''}">▼</div>
@@ -352,15 +414,15 @@ function renderHabitTab(tab) {
       </div>
       <div class="cat-body" style="display:${isOpen ? 'block' : 'none'}">
         ${goals.map(g => {
-          const done    = isDoneToday(g, isWeekly);
-          const streak  = calcStreak(g.history, isWeekly);
+          const done    = isDoneToday(g, tab);
+          const streak  = tab === 'monthly' ? calcMonthlyStreak(g.history) : calcStreak(g.history, tab === 'weekly');
           return `
           <div class="goal-row">
             <div class="chk ${done ? 'on ' + tab : ''}"
               onclick="toggleHabit('${tab}','${cat.id}',${g.id})"></div>
             <div class="goal-info">
               <div class="goal-txt ${done ? 'done' : ''}">${g.text}</div>
-              ${streak > 0 ? `<div class="streak-badge">🔥 ${streak} ${isWeekly ? 'minggu' : 'hari'}</div>` : ''}
+              ${streak > 0 ? `<div class="streak-badge">🔥 ${streak} ${tab === 'weekly' ? 'minggu' : tab === 'monthly' ? 'bulan' : 'hari'}</div>` : ''}
             </div>
             <div class="goal-actions">
               <button class="icon-btn" onclick="openCalendar('${tab}','${cat.id}',${g.id})" title="Lihat history">📆</button>
@@ -473,8 +535,10 @@ function toggleCat(tab, catId) {
 
 // ── CENTANG HABIT (daily/weekly) ────────────────────────────────
 function toggleHabit(tab, catId, goalId) {
-  const isWeekly = tab === 'weekly';
-  const key      = isWeekly ? thisWeek() : today();
+  let key;
+  if (tab === 'weekly')       key = thisWeek();
+  else if (tab === 'monthly') key = thisMonth();
+  else                        key = today();
   const goal     = state[tab][catId].find(g => g.id === goalId);
   if (!goal) return;
 

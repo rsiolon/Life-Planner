@@ -60,6 +60,14 @@
             </div>
             <div class="summary-bar-wrap"><div class="summary-bar" id="dashWeeklyBar"></div></div>
           </div>
+          <div class="summary-card" onclick="switchTab('monthly')">
+            <div class="summary-icon" style="background:#E3F2FD">📆</div>
+            <div class="summary-info">
+              <div class="summary-name">Monthly</div>
+              <div class="summary-pct" id="dashMonthlyPct">0%</div>
+            </div>
+            <div class="summary-bar-wrap"><div class="summary-bar" id="dashMonthlyBar"></div></div>
+          </div>
           <div class="summary-card" onclick="switchTab('yearly')">
             <div class="summary-icon" style="background:#EDE7F6">🎯</div>
             <div class="summary-info">
@@ -102,6 +110,10 @@
       <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">
         <span class="tab-icon">🗓️</span>
         <span class="tab-lbl">Weekly</span>
+      </button>
+      <button class="tab-btn" id="tab-monthly" onclick="switchTab('monthly')">
+        <span class="tab-icon">📆</span>
+        <span class="tab-lbl">Monthly</span>
       </button>
       <button class="tab-btn" id="tab-yearly" onclick="switchTab('yearly')">
         <span class="tab-icon">🎯</span>
