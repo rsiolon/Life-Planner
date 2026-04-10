@@ -1,171 +1,159 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Life Planner" />
-    <meta name="theme-color" content="#8B1A1A" />
-    <title>Life Planner</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="manifest" href="manifest.json" />
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Life Planner"/>
+  <meta name="theme-color" content="#8B1A1A"/>
+  <title>Life Planner</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+</head>
+<body>
 
-    <header class="header">
-      <div class="header-inner">
-        <div>
-          <h1 class="header-title" id="headerTitle">Life Planner</h1>
-          <p class="header-sub" id="headerSub"></p>
-        </div>
-        <div class="header-pct" id="headerPct">0%</div>
+<header class="header" id="appHeader">
+  <div class="header-inner">
+    <div class="header-left">
+      <p class="header-sub" id="headerSub">2025</p>
+      <h1 class="header-title" id="headerTitle">Life Planner</h1>
+    </div>
+    <div class="header-right">
+      <div class="header-pct" id="headerPct">0%</div>
+      <button class="dark-btn" id="darkBtn" onclick="toggleDark()">☀︎</button>
+    </div>
+  </div>
+  <div class="header-bar-wrap">
+    <div class="header-bar" id="overallBar"></div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="metric-row">
+      <div class="metric-card">
+        <span class="metric-val" id="statDone">0</span>
+        <span class="metric-lbl">Yearly Done</span>
       </div>
-      <div class="overall-bar-wrap">
-        <div class="overall-bar" id="overallBar"></div>
+      <div class="metric-card">
+        <span class="metric-val" id="statStreak">0</span>
+        <span class="metric-lbl">Best Streak 🔥</span>
       </div>
-    </header>
-
-    <main class="main" id="mainContent">
-
-      <section id="page-dashboard" class="page active">
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-num" id="statDone">0</span>
-            <span class="stat-lbl">Selesai</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num" id="statTotal">0</span>
-            <span class="stat-lbl">Total Goals</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num" id="statStreak">0</span>
-            <span class="stat-lbl">Streak Terbaik 🔥</span>
-          </div>
-        </div>
-        <div class="summary-row">
-          <div class="summary-card" onclick="switchTab('daily')">
-            <div class="summary-icon" style="background:#FFF3E0">📅</div>
-            <div class="summary-info">
-              <div class="summary-name">Daily</div>
-              <div class="summary-pct" id="dashDailyPct">0%</div>
-            </div>
-            <div class="summary-bar-wrap"><div class="summary-bar" id="dashDailyBar"></div></div>
-          </div>
-          <div class="summary-card" onclick="switchTab('weekly')">
-            <div class="summary-icon" style="background:#E8F5E9">🗓️</div>
-            <div class="summary-info">
-              <div class="summary-name">Weekly</div>
-              <div class="summary-pct" id="dashWeeklyPct">0%</div>
-            </div>
-            <div class="summary-bar-wrap"><div class="summary-bar" id="dashWeeklyBar"></div></div>
-          </div>
-          <div class="summary-card" onclick="switchTab('monthly')">
-            <div class="summary-icon" style="background:#E3F2FD">📆</div>
-            <div class="summary-info">
-              <div class="summary-name">Monthly</div>
-              <div class="summary-pct" id="dashMonthlyPct">0%</div>
-            </div>
-            <div class="summary-bar-wrap"><div class="summary-bar" id="dashMonthlyBar"></div></div>
-          </div>
-          <div class="summary-card" onclick="switchTab('yearly')">
-            <div class="summary-icon" style="background:#EDE7F6">🎯</div>
-            <div class="summary-info">
-              <div class="summary-name">Yearly</div>
-              <div class="summary-pct" id="dashYearlyPct">0%</div>
-            </div>
-            <div class="summary-bar-wrap"><div class="summary-bar" id="dashYearlyBar"></div></div>
-          </div>
-        </div>
-        <div class="section-label">Per Kategori</div>
-        <div id="dashCatList"></div>
-      </section>
-
-      <section id="page-daily" class="page">
-        <div class="date-header" id="dailyDateHeader"></div>
-        <div id="dailyCatList"></div>
-      </section>
-
-      <section id="page-weekly" class="page">
-        <div class="date-header" id="weeklyDateHeader"></div>
-        <div id="weeklyCatList"></div>
-      </section>
-
-      <section id="page-yearly" class="page">
-        <div class="date-header" id="yearlyDateHeader"></div>
-        <div id="yearlyCatList"></div>
-      </section>
-
-    </main>
-
-    <nav class="tab-bar">
-      <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
-        <span class="tab-icon">🏠</span>
-        <span class="tab-lbl">Dashboard</span>
-      </button>
-      <button class="tab-btn" id="tab-daily" onclick="switchTab('daily')">
-        <span class="tab-icon">📅</span>
-        <span class="tab-lbl">Daily</span>
-      </button>
-      <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">
-        <span class="tab-icon">🗓️</span>
-        <span class="tab-lbl">Weekly</span>
-      </button>
-      <button class="tab-btn" id="tab-monthly" onclick="switchTab('monthly')">
-        <span class="tab-icon">📆</span>
-        <span class="tab-lbl">Monthly</span>
-      </button>
-      <button class="tab-btn" id="tab-yearly" onclick="switchTab('yearly')">
-        <span class="tab-icon">🎯</span>
-        <span class="tab-lbl">Yearly</span>
-      </button>
-    </nav>
-
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="modal">
-        <h2 class="modal-title" id="modalTitle">Tambah Goal</h2>
-        <input class="modal-input" id="modalGoalInput" type="text" placeholder="Nama goal lo..." />
-        <input class="modal-input" id="modalDeadlineInput" type="text" placeholder="Deadline (contoh: Jun 2025)" />
-        <div id="modalTargetWrap" style="display:none">
-          <input class="modal-input" id="modalTargetInput" type="number" placeholder="Target angka (contoh: 50000000)" />
-          <input class="modal-input" id="modalUnitInput" type="text" placeholder="Satuan (contoh: Rp, buku, km)" />
-        </div>
-        <div id="modalTypeToggle" style="display:none">
-          <div class="type-toggle">
-            <button class="type-btn active" id="typeBtnOnce" onclick="setGoalType('once')">Sekali selesai</button>
-            <button class="type-btn" id="typeBtnNumber" onclick="setGoalType('number')">Ada target angka</button>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-cancel" id="modalCancel">Batal</button>
-          <button class="btn-save" id="modalSave">Simpan</button>
-        </div>
+      <div class="metric-card">
+        <span class="metric-val" id="statPct">0%</span>
+        <span class="metric-lbl">Overall</span>
       </div>
     </div>
+    <div class="list-group" id="dashSummary"></div>
+    <p class="group-label">Per Kategori</p>
+    <div class="list-group" id="dashCats"></div>
+  </section>
 
-    <div class="modal-overlay" id="calendarOverlay">
-      <div class="modal">
-        <h2 class="modal-title" id="calendarTitle">History</h2>
-        <div id="calendarGrid"></div>
-        <div class="modal-actions">
-          <button class="btn-save" onclick="closeCalendar()">Tutup</button>
-        </div>
+  <!-- DAILY -->
+  <section class="page" id="page-daily">
+    <p class="page-date" id="dailyDate"></p>
+    <div id="dailyCatList"></div>
+  </section>
+
+  <!-- WEEKLY -->
+  <section class="page" id="page-weekly">
+    <p class="page-date" id="weeklyDate"></p>
+    <div id="weeklyCatList"></div>
+  </section>
+
+  <!-- MONTHLY -->
+  <section class="page" id="page-monthly">
+    <p class="page-date" id="monthlyDate"></p>
+    <div id="monthlyCatList"></div>
+  </section>
+
+  <!-- YEARLY -->
+  <section class="page" id="page-yearly">
+    <p class="page-date" id="yearlyDate"></p>
+    <div id="yearlyCatList"></div>
+  </section>
+
+</main>
+
+<!-- TAB BAR -->
+<nav class="tabbar">
+  <button class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="tab" id="tab-daily" onclick="switchTab('daily')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Daily</span>
+  </button>
+  <button class="tab" id="tab-weekly" onclick="switchTab('weekly')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Weekly</span>
+  </button>
+  <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    <span>Monthly</span>
+  </button>
+  <button class="tab" id="tab-yearly" onclick="switchTab('yearly')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span>Yearly</span>
+  </button>
+</nav>
+
+<!-- MODAL TAMBAH GOAL -->
+<div class="overlay" id="addOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="addTitle">Tambah</h2>
+    <input class="field" id="addText" type="text" placeholder="Nama habit / goal…"/>
+    <input class="field" id="addDeadline" type="text" placeholder="Deadline (misal: Des 2025)" style="display:none"/>
+    <div id="typeToggleWrap" style="display:none">
+      <div class="seg-ctrl">
+        <button class="seg active" id="segOnce" onclick="setType('once')">Sekali selesai</button>
+        <button class="seg" id="segNumber" onclick="setType('number')">Target angka</button>
       </div>
     </div>
-
-    <div class="modal-overlay" id="progressOverlay">
-      <div class="modal">
-        <h2 class="modal-title" id="progressTitle">Update Progress</h2>
-        <p class="modal-hint" id="progressHint"></p>
-        <input class="modal-input" id="progressInput" type="number" placeholder="Masukkan angka sekarang..." />
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeProgressModal()">Batal</button>
-          <button class="btn-save" onclick="saveProgress()">Simpan</button>
-        </div>
-      </div>
+    <div id="numberWrap" style="display:none">
+      <input class="field" id="addTarget" type="number" placeholder="Target angka (misal: 12)"/>
+      <input class="field" id="addUnit"   type="text"   placeholder="Satuan (misal: buku, Rp, km)"/>
     </div>
+    <div class="sheet-actions">
+      <button class="sheet-cancel" onclick="closeAdd()">Batal</button>
+      <button class="sheet-save"   onclick="saveAdd()">Simpan</button>
+    </div>
+  </div>
+</div>
 
-    <div class="toast" id="toast"></div>
-    <script src="app.js"></script>
-  </body>
+<!-- MODAL UPDATE PROGRESS -->
+<div class="overlay" id="progOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="progTitle">Update Progress</h2>
+    <p class="sheet-hint" id="progHint"></p>
+    <input class="field" id="progInput" type="number" placeholder="Angka sekarang…"/>
+    <div class="sheet-actions">
+      <button class="sheet-cancel" onclick="closeProg()">Batal</button>
+      <button class="sheet-save"   onclick="saveProg()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KALENDER -->
+<div class="overlay" id="calOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="calTitle">History</h2>
+    <div id="calBody"></div>
+    <div class="sheet-actions">
+      <button class="sheet-save" onclick="closeCal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
 </html>
