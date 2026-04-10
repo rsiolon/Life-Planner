@@ -1,203 +1,321 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Life Planner"/>
-  <meta name="theme-color" content="#8B1A1A"/>
-  <title>Life Planner</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="apple-mobile-web-app-title" content="Temporal"/>
+  <meta name="theme-color" content="#3540a3"/>
+  <title>Temporal | Life Planner</title>
   <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="header-left">
-      <p class="header-sub" id="headerSub">2025</p>
-      <h1 class="header-title" id="headerTitle">Life Planner</h1>
-    </div>
-    <div class="header-right">
-      <div class="header-pct" id="headerPct">0%</div>
-      <button class="dark-btn" id="darkBtn" onclick="toggleDark()">☽</button>
-    </div>
-  </div>
-  <div class="header-bar-wrap">
-    <div class="header-bar" id="overallBar"></div>
-  </div>
-</header>
+<!-- TOP NAV -->
+<nav class="top-nav" id="topNav">
+  <button class="nav-icon-btn" onclick="toggleSidebar()">
+    <span class="material-symbols-outlined">grid_view</span>
+  </button>
+  <div class="nav-brand">TEMPORAL</div>
+  <button class="nav-icon-btn" onclick="toggleDark()" id="darkBtn">
+    <span class="material-symbols-outlined">dark_mode</span>
+  </button>
+</nav>
 
-<main class="main">
+<!-- MAIN CONTENT -->
+<main class="main-content" id="mainContent">
 
-  <!-- DASHBOARD -->
+  <!-- ── DASHBOARD PAGE ── -->
   <section class="page active" id="page-dashboard">
-    <div class="metric-row">
-      <div class="metric-card">
-        <span class="metric-val" id="statDone">0</span>
-        <span class="metric-lbl">Yearly Done</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-val" id="statStreak">0</span>
-        <span class="metric-lbl">Best Streak 🔥</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-val" id="statPct">0%</span>
-        <span class="metric-lbl">Overall</span>
-      </div>
-    </div>
+    <header class="page-header">
+      <p class="eyebrow">The Annual Arc</p>
+      <h1 class="display-title" id="dashTitle">0% Consistency</h1>
+      <p class="header-sub" id="dashSub">Mulai centang habits lo hari ini.</p>
+    </header>
 
-    <p class="group-label">Progress</p>
-    <div class="list-group" id="dashSummary"></div>
-
-    <p class="group-label">Heatmap Tahun Ini</p>
-    <div class="heatmap-card">
-      <div class="heatmap-months" id="heatmapMonths"></div>
-      <div class="heatmap-wrap">
-        <div class="heatmap-days">
-          <span></span><span>Sen</span><span></span><span>Rab</span><span></span><span>Jum</span><span></span>
+    <!-- Heatmap card -->
+    <div class="card heatmap-card">
+      <div class="card-header-row">
+        <h2 class="card-title">Activity Exhibit</h2>
+        <div class="legend-row">
+          <span class="legend-lbl">Less</span>
+          <div class="legend-cells">
+            <div class="hm-cell" style="background:var(--hm0)"></div>
+            <div class="hm-cell" style="background:var(--hm1)"></div>
+            <div class="hm-cell" style="background:var(--hm2)"></div>
+            <div class="hm-cell" style="background:var(--hm3)"></div>
+            <div class="hm-cell" style="background:var(--hm4)"></div>
+          </div>
+          <span class="legend-lbl">More</span>
         </div>
+      </div>
+      <div class="heatmap-scroll">
         <div class="heatmap-grid" id="heatmapGrid"></div>
       </div>
-      <div class="heatmap-legend">
-        <span>Kurang</span>
-        <div class="heatmap-leg-boxes">
-          <div class="hm-cell" style="background:var(--hm0)"></div>
-          <div class="hm-cell" style="background:var(--hm1)"></div>
-          <div class="hm-cell" style="background:var(--hm2)"></div>
-          <div class="hm-cell" style="background:var(--hm3)"></div>
-          <div class="hm-cell" style="background:var(--hm4)"></div>
-        </div>
-        <span>Banyak</span>
+      <div class="heatmap-months" id="heatmapMonths"></div>
+    </div>
+
+    <!-- Streak + summary bento -->
+    <div class="bento-row">
+      <div class="card bento-streak">
+        <span class="material-symbols-outlined streak-icon">local_fire_department</span>
+        <div class="streak-num" id="dashStreak">0</div>
+        <div class="streak-lbl">Day Streak</div>
+      </div>
+      <div class="card bento-overall">
+        <p class="eyebrow-sm">Overall</p>
+        <div class="big-num" id="dashOverall">0%</div>
+        <div class="bento-bars" id="dashBars"></div>
       </div>
     </div>
 
-    <p class="group-label">Per Kategori</p>
-    <div class="list-group" id="dashCats"></div>
+    <!-- Quote -->
+    <blockquote class="quote-block">
+      <p class="quote-text">"The way we spend our days is, of course, the way we spend our lives."</p>
+      <cite class="quote-cite">— Annie Dillard</cite>
+    </blockquote>
   </section>
 
-  <!-- DAILY -->
-  <section class="page" id="page-daily">
-    <p class="page-date" id="dailyDate"></p>
-    <div id="dailyCatList"></div>
-    <p class="group-label" style="margin-top:24px">Kalender Bulan Ini</p>
-    <div class="cal-month-card" id="dailyCalCard"></div>
+  <!-- ── PROGRESS PAGE ── -->
+  <section class="page" id="page-progress">
+    <header class="page-header">
+      <p class="eyebrow">Continuity</p>
+      <h1 class="display-title">Progress Gallery</h1>
+    </header>
+
+    <!-- Tab pills -->
+    <div class="pill-scroll" id="progressPills"></div>
+
+    <!-- Calendar card -->
+    <div class="card cal-card" id="calCard">
+      <div class="cal-nav-row">
+        <h3 class="cal-month-title" id="calMonthTitle"></h3>
+        <div class="cal-nav-btns">
+          <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+          <button class="cal-nav-btn" onclick="calNext()">›</button>
+        </div>
+      </div>
+      <div class="cal-grid-wrap" id="calGrid"></div>
+    </div>
+
+    <!-- Weekly pulse + monthly exhibit -->
+    <div class="stat-pair">
+      <div class="card stat-card">
+        <p class="eyebrow-sm">Weekly Pulse</p>
+        <div class="stat-row">
+          <span class="stat-big" id="weeklyPulse">0%</span>
+          <span class="stat-target" id="weeklyTarget"></span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="weeklyBar"></div></div>
+      </div>
+      <div class="card stat-card">
+        <p class="eyebrow-sm">Monthly Exhibit</p>
+        <div class="stat-row">
+          <span class="stat-big" id="monthlyPulse">0%</span>
+          <span class="stat-target" id="monthlyTarget"></span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="monthlyBar"></div></div>
+      </div>
+    </div>
+
+    <!-- Streak + inspiration -->
+    <div class="bento-row">
+      <div class="card bento-streak-sm">
+        <span class="material-symbols-outlined" style="color:var(--primary);font-size:28px">military_tech</span>
+        <p class="eyebrow-sm" style="margin-top:12px">Streak</p>
+        <div class="big-num" id="progressStreak">0</div>
+        <p class="streak-lbl">Days Active</p>
+      </div>
+      <div class="card inspiration-card">
+        <p class="eyebrow-sm">Inspiration</p>
+        <p class="inspiration-text">"Simplicity is the final achievement."</p>
+      </div>
+    </div>
   </section>
 
-  <!-- WEEKLY -->
-  <section class="page" id="page-weekly">
-    <p class="page-date" id="weeklyDate"></p>
-    <div id="weeklyCatList"></div>
-    <p class="group-label" style="margin-top:24px">Kalender Bulan Ini</p>
-    <div class="cal-month-card" id="weeklyCalCard"></div>
+  <!-- ── GOALS PAGE ── -->
+  <section class="page" id="page-goals">
+    <header class="page-header">
+      <p class="eyebrow">The Annual Perspective</p>
+      <h1 class="display-title">Yearly Targets</h1>
+    </header>
+
+    <!-- Blueprint card -->
+    <div class="card blueprint-card">
+      <div class="blueprint-top">
+        <div class="blueprint-left">
+          <div class="blueprint-title-row">
+            <span class="material-symbols-outlined" style="color:var(--primary);font-size:28px;font-variation-settings:'FILL' 1">military_tech</span>
+            <h2 class="card-title" id="blueprintYear">2025 Blueprint</h2>
+          </div>
+          <p class="blueprint-sub">Progress diukur dari konsistensi, bukan hanya completion.</p>
+          <div class="blueprint-pct-row">
+            <div>
+              <span class="blueprint-pct" id="blueprintPct">0%</span>
+              <span class="eyebrow-sm">Global Progress</span>
+            </div>
+          </div>
+        </div>
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 36 36">
+            <circle class="ring-track" cx="18" cy="18" r="15" fill="none" stroke-width="3"/>
+            <circle class="ring-fill" cx="18" cy="18" r="15" fill="none" stroke-width="3"
+              stroke-dasharray="0,100" stroke-linecap="round" id="blueprintRing"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Add goal button -->
+      <button class="architect-btn" onclick="openAdd('yearly', null)">
+        <div class="architect-plus">
+          <span class="material-symbols-outlined">add</span>
+        </div>
+        <span class="architect-label">Architect New Goal</span>
+      </button>
+
+      <!-- Milestones -->
+      <div class="milestones-grid">
+        <div class="milestone-item">
+          <span class="eyebrow-sm">Milestones Met</span>
+          <div class="milestone-row">
+            <span class="milestone-num" id="milestonesDone">0</span>
+            <span class="milestone-total" id="milestonesTotal">/ 0 Goals</span>
+          </div>
+        </div>
+        <div class="milestone-item" style="border-top: 1px solid var(--outline-var)">
+          <span class="eyebrow-sm">Days Active</span>
+          <span class="milestone-num" id="daysActive">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals by category -->
+    <div class="section-header-row">
+      <div>
+        <p class="eyebrow">The Current Cycle</p>
+        <h2 class="section-title" id="goalsMonthTitle"></h2>
+      </div>
+    </div>
+    <div id="goalsCatList"></div>
+
+    <blockquote class="quote-block">
+      <p class="quote-text">"The quiet architecture of a well-spent day is the foundation of a significant year."</p>
+      <cite class="quote-cite">— Editorial Note</cite>
+    </blockquote>
   </section>
 
-  <!-- MONTHLY -->
-  <section class="page" id="page-monthly">
-    <p class="page-date" id="monthlyDate"></p>
-    <div id="monthlyCatList"></div>
-    <p class="group-label" style="margin-top:24px">Kalender Tahun Ini</p>
-    <div class="cal-month-card" id="monthlyCalCard"></div>
-  </section>
+  <!-- ── HABITS PAGE (Daily/Weekly/Monthly) ── -->
+  <section class="page" id="page-habits">
+    <header class="page-header">
+      <p class="eyebrow" id="habitsEyebrow">Daily Curation</p>
+      <h1 class="display-title" id="habitsTitle">Today's Rituals</h1>
+      <div class="habit-type-pills">
+        <button class="type-pill active" id="pill-daily" onclick="setHabitType('daily')">Daily</button>
+        <button class="type-pill" id="pill-weekly" onclick="setHabitType('weekly')">Weekly</button>
+        <button class="type-pill" id="pill-monthly" onclick="setHabitType('monthly')">Monthly</button>
+      </div>
+    </header>
 
-  <!-- YEARLY -->
-  <section class="page" id="page-yearly">
-    <p class="page-date" id="yearlyDate"></p>
-    <div id="yearlyCatList"></div>
+    <div class="habit-list-header">
+      <button class="new-task-btn" onclick="openAdd(currentHabitType, null)">
+        <span class="material-symbols-outlined">add</span> New Task
+      </button>
+    </div>
+    <div id="habitCatList"></div>
   </section>
 
 </main>
 
-<!-- TAB BAR -->
-<nav class="tabbar">
-  <button class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    <span>Home</span>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-tab active" id="navtab-dashboard" onclick="switchTab('dashboard')">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">dashboard</span>
+    <span>Dashboard</span>
   </button>
-  <button class="tab" id="tab-daily" onclick="switchTab('daily')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span>Daily</span>
+  <button class="nav-tab" id="navtab-progress" onclick="switchTab('progress')">
+    <span class="material-symbols-outlined">analytics</span>
+    <span>Progress</span>
   </button>
-  <button class="tab" id="tab-weekly" onclick="switchTab('weekly')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <span>Weekly</span>
+  <button class="nav-tab" id="navtab-goals" onclick="switchTab('goals')">
+    <span class="material-symbols-outlined">military_tech</span>
+    <span>Goals</span>
   </button>
-  <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">
-    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-    <span>Monthly</span>
-  </button>
-  <button class="tab" id="tab-yearly" onclick="switchTab('yearly')">
-    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-    <span>Yearly</span>
+  <button class="nav-tab" id="navtab-habits" onclick="switchTab('habits')">
+    <span class="material-symbols-outlined">checklist</span>
+    <span>Habits</span>
   </button>
 </nav>
 
-<!-- MODAL TAMBAH GOAL -->
+<!-- ── MODAL: ADD GOAL/HABIT ── -->
 <div class="overlay" id="addOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2 class="sheet-title" id="addTitle">Tambah</h2>
-    <input class="field" id="addText" type="text" placeholder="Nama habit / goal…"/>
-    <input class="field" id="addDeadline" type="text" placeholder="Deadline (misal: Des 2025)" style="display:none"/>
-    <div id="typeToggleWrap" style="display:none">
-      <div class="seg-ctrl">
-        <button class="seg active" id="segOnce" onclick="setType('once')">Sekali selesai</button>
-        <button class="seg" id="segNumber" onclick="setType('number')">Target angka</button>
+    <h2 class="sheet-title" id="addSheetTitle">New Entry</h2>
+    <label class="field-label">Nama</label>
+    <input class="field-input" id="addText" type="text" placeholder="Tulis nama habit atau goal…"/>
+    <div id="addYearlyExtras" style="display:none">
+      <label class="field-label">Deadline</label>
+      <input class="field-input" id="addDeadline" type="text" placeholder="misal: Des 2025"/>
+      <label class="field-label">Tipe</label>
+      <div class="seg-row">
+        <button class="seg active" id="segOnce" onclick="setGoalType('once')">Sekali selesai</button>
+        <button class="seg" id="segNum" onclick="setGoalType('number')">Target angka</button>
+      </div>
+      <div id="addNumExtras" style="display:none">
+        <label class="field-label">Target Total</label>
+        <input class="field-input" id="addTarget" type="number" placeholder="misal: 12000"/>
+        <label class="field-label">Satuan</label>
+        <input class="field-input" id="addUnit" type="text" placeholder="misal: €, buku, km"/>
+        <div class="seg-row" style="margin-top:8px">
+          <button class="seg active" id="segManual" onclick="setAccumType(false)">Input manual</button>
+          <button class="seg" id="segAccum" onclick="setAccumType(true)">Akumulasi bulanan</button>
+        </div>
+        <div id="addAccumExtra" style="display:none">
+          <label class="field-label">Target per Bulan</label>
+          <input class="field-input" id="addMonthly" type="number" placeholder="misal: 1000"/>
+        </div>
       </div>
     </div>
-    <div id="numberWrap" style="display:none">
-      <input class="field" id="addTarget" type="number" placeholder="Target total (misal: 12000)"/>
-      <input class="field" id="addUnit" type="text" placeholder="Satuan (misal: €, buku, km)"/>
-      <div class="seg-ctrl" id="accumToggle">
-        <button class="seg active" id="segManual" onclick="setAccum(false)">Input manual</button>
-        <button class="seg" id="segAccum" onclick="setAccum(true)">Akumulasi bulanan</button>
-      </div>
-      <input class="field" id="addMonthly" type="number" placeholder="Target per bulan (misal: 1000)" style="display:none"/>
+    <div class="sheet-category-row" id="addCatRow" style="display:none">
+      <label class="field-label">Kategori</label>
+      <div class="cat-chips" id="addCatChips"></div>
     </div>
     <div class="sheet-actions">
-      <button class="sheet-cancel" onclick="closeAdd()">Batal</button>
-      <button class="sheet-save" onclick="saveAdd()">Simpan</button>
+      <button class="btn-secondary" onclick="closeAdd()">Batal</button>
+      <button class="btn-primary" onclick="saveAdd()">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL LOG BULANAN -->
+<!-- ── MODAL: LOG MONTHLY ── -->
 <div class="overlay" id="logOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2 class="sheet-title" id="logTitle">Log Bulan Ini</h2>
+    <h2 class="sheet-title" id="logTitle">Log Progress</h2>
     <p class="sheet-hint" id="logHint"></p>
-    <div id="logHistory"></div>
-    <input class="field" id="logMonth" type="month"/>
-    <input class="field" id="logVal" type="number" placeholder="Angka bulan ini…"/>
+    <div id="logHistoryWrap"></div>
+    <label class="field-label">Bulan</label>
+    <input class="field-input" id="logMonth" type="month"/>
+    <label class="field-label">Angka</label>
+    <input class="field-input" id="logVal" type="number" placeholder="Angka bulan ini…"/>
     <div class="sheet-actions">
-      <button class="sheet-cancel" onclick="closeLog()">Batal</button>
-      <button class="sheet-save" onclick="saveLog()">Simpan</button>
+      <button class="btn-secondary" onclick="closeLog()">Batal</button>
+      <button class="btn-primary" onclick="saveLog()">Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL DETAIL HARI (heatmap tap) -->
+<!-- ── MODAL: DAY DETAIL ── -->
 <div class="overlay" id="dayOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2 class="sheet-title" id="dayTitle">Detail Hari</h2>
     <div id="dayBody"></div>
     <div class="sheet-actions">
-      <button class="sheet-save" onclick="closeDay()">Tutup</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL KALENDER HISTORY HABIT -->
-<div class="overlay" id="calOverlay">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2 class="sheet-title" id="calTitle">History</h2>
-    <div id="calBody"></div>
-    <div class="sheet-actions">
-      <button class="sheet-save" onclick="closeCal()">Tutup</button>
+      <button class="btn-primary" onclick="closeOverlay('dayOverlay')">Tutup</button>
     </div>
   </div>
 </div>
