@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Temporal"/>
+  <meta name="apple-mobile-web-app-title" content="Life Planner"/>
   <meta name="theme-color" content="#3540a3"/>
-  <title>Temporal | Life Planner</title>
+  <title>Life Planner</title>
   <link rel="manifest" href="manifest.json"/>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
@@ -19,7 +19,7 @@
   <button class="nav-icon-btn" onclick="toggleSidebar()">
     <span class="material-symbols-outlined">grid_view</span>
   </button>
-  <div class="nav-brand">TEMPORAL</div>
+  <div class="nav-brand">LIFE PLANNER</div>
   <button class="nav-icon-btn" onclick="toggleDark()" id="darkBtn">
     <span class="material-symbols-outlined">dark_mode</span>
   </button>
@@ -53,9 +53,11 @@
         </div>
       </div>
       <div class="heatmap-scroll">
-        <div class="heatmap-grid" id="heatmapGrid"></div>
+        <div class="heatmap-inner">
+          <div class="heatmap-months" id="heatmapMonths"></div>
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
       </div>
-      <div class="heatmap-months" id="heatmapMonths"></div>
     </div>
 
     <!-- Streak + summary bento -->

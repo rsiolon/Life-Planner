@@ -471,10 +471,10 @@ function renderHabitList() {
               '<span style="font-size:20px">'+c.icon+'</span>'+
             '</div>'+
             '<div class="habit-info">'+
-              '<div class="habit-name '+(done?'style="opacity:.5"':'')+'">'+goal.text+'</div>'+
+              '<div class="habit-name" style="'+(done?'opacity:.5;text-decoration:line-through':'')+'">'+goal.text+'</div>'+
               (s>0?'<div class="habit-streak"><span class="streak-badge">🔥 '+s+' '+streakWord+'</span></div>':'')+
             '</div>'+
-            '<div class="habit-check '+(done?'on ':'')+'" onclick="toggleHabit(\''+tab+'\',\''+c.id+'\','+goal.id+')">'+
+            '<div class="habit-check '+(done?'done ':'')+'" onclick="toggleHabit(\''+tab+'\',\''+c.id+'\','+goal.id+')">'+
               '<span class="material-symbols-outlined" style="font-variation-settings:\'FILL\' 1">check</span>'+
             '</div>'+
             '<button class="del-btn" onclick="delGoal(\''+tab+'\',\''+c.id+'\','+goal.id+')">'+
