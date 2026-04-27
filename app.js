@@ -502,7 +502,7 @@ function renderHabitList() {
 
       var addBtn=document.createElement('button'); addBtn.className='add-habit-btn';
       addBtn.innerHTML='<span class="material-symbols-outlined">add</span> Tambah habit';
-      addBtn.onclick=(function(catId,t){return function(){openAdd(t,catId);};})(c.id,tab);
+      addBtn.onclick=(function(catId,t){return function(){openAdd(t,catId);};})(c.id,tab); // preserves category context for weekly/monthly
       section.appendChild(addBtn);
     }
 
@@ -543,31 +543,40 @@ function delGoal(tab,catId,id) {
 // ── ADD MODAL ──────────────────────────────────────────────────
 function openAdd(tab,catId) {
   addCtx={tab:tab,cat:catId,goalType:'once',accum:false};
-  var isYearly=tab==='yearly';
-  var label={daily:'Daily Habit',weekly:'Weekly Habit',monthly:'Monthly Habit',yearly:'Yearly Goal'}[tab];
-  g('addSheetTitle').textContent='New '+label;
-  g('addText').value='';
-  g('addDeadline').value='';
-  g('addTarget').value='';
-  g('addUnit').value='';
-  g('addMonthly').value='';
-  g('addYearlyExtras').style.display=isYearly?'block':'none';
-  g('addNumExtras').style.display='none';
-  g('addAccumExtra').style.display='none';
-  g('addCatRow').style.display=isYearly?'block':'none';
+  var isYearly = tab === 'yearly';
+  var labels = {daily:'Daily Habit', weekly:'Weekly Habit', monthly:'Monthly Habit', yearly:'Yearly Goal'};
+  g('addSheetTitle').textContent = 'New ' + labels[tab];
+  g('addText').value = '';
+  g('addDeadline').value = '';
+  g('addTarget').value = '';
+  g('addUnit').value = '';
+  g('addMonthly').value = '';
+  g('addYearlyExtras').style.display = isYearly ? 'block' : 'none';
+  g('addNumExtras').style.display = 'none';
+  g('addAccumExtra').style.display = 'none';
   g('segOnce').classList.add('active'); g('segNum').classList.remove('active');
   g('segManual').classList.add('active'); g('segAccum').classList.remove('active');
 
-  // Cat chips
-  if(isYearly) {
-    var chips=g('addCatChips'); chips.innerHTML='';
-    CATS.forEach(function(c){
-      var chip=document.createElement('button'); chip.className='cat-chip'+(c.id===catId?' selected':'');
-      chip.textContent=c.icon+' '+c.label;
-      chip.onclick=(function(cid){return function(){addCtx.cat=cid;document.querySelectorAll('.cat-chip').forEach(function(ch){ch.classList.toggle('selected',ch===chip);});};})(c.id);
-      chips.appendChild(chip);
-    });
-  }
+  // Show category picker for ALL types
+  g('addCatRow').style.display = 'block';
+  var chips = g('addCatChips'); chips.innerHTML = '';
+  // Default: use passed catId, or first cat
+  var defaultCat = catId || CATS[0].id;
+  addCtx.cat = defaultCat;
+  CATS.forEach(function(c) {
+    var chip = document.createElement('button');
+    chip.className = 'cat-chip' + (c.id === defaultCat ? ' selected' : '');
+    chip.textContent = c.icon + ' ' + c.label;
+    chip.onclick = (function(cid, el) {
+      return function() {
+        addCtx.cat = cid;
+        document.querySelectorAll('.cat-chip').forEach(function(ch) {
+          ch.classList.toggle('selected', ch === el);
+        });
+      };
+    })(c.id, chip);
+    chips.appendChild(chip);
+  });
 
   showOverlay('addOverlay');
   setTimeout(function(){g('addText').focus();},100);
@@ -806,7 +815,7 @@ function renderGrid() {
   var addBtn2 = document.createElement('button');
   addBtn2.className = 'grid-add-btn';
   addBtn2.innerHTML = '<span class="material-symbols-outlined">add</span> Tambah';
-  addBtn2.onclick = function() { openAdd('daily', CATS[0].id); };
+  addBtn2.onclick = function() { openAdd('daily', null); };
   addNameCell.appendChild(addBtn2);
   namesCol.appendChild(addNameCell);
 
