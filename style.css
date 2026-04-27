@@ -571,3 +571,231 @@ html.dark .bottom-nav { background: rgba(27,27,33,.8); }
   pointer-events: none; white-space: nowrap; z-index: 300;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── VIEW TOGGLE ────────────────────────────────────────────────── */
+.view-toggle {
+  display: flex; gap: 4px;
+  background: var(--surface-high); border-radius: var(--radius-pill);
+  padding: 3px;
+}
+.view-toggle-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-pill);
+  border: none; background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--on-surf-var); transition: all .18s;
+}
+.view-toggle-btn.active { background: var(--primary); color: #fff; }
+.view-toggle-btn .material-symbols-outlined { font-size: 18px; }
+
+/* ── HABIT GRID ─────────────────────────────────────────────────── */
+.grid-month-label {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+  color: var(--on-surface); margin-bottom: 16px; margin-left: 4px;
+}
+
+.grid-wrap {
+  border-radius: var(--radius-card);
+  background: var(--surface-lowest);
+  box-shadow: 0 8px 32px rgba(27,27,33,.04);
+  border: 1px solid rgba(198,197,212,.1);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+/* The outer flex: left = sticky names, right = scrollable dates */
+.grid-layout {
+  display: flex;
+  overflow: hidden;
+}
+
+/* LEFT — sticky habit names column */
+.grid-names-col {
+  flex-shrink: 0;
+  width: 140px;
+  border-right: 1px solid rgba(198,197,212,.2);
+  background: var(--surface-lowest);
+  position: relative;
+  z-index: 2;
+  /* subtle right shadow to indicate more content */
+  box-shadow: 4px 0 12px rgba(27,27,33,.06);
+}
+
+/* RIGHT — scrollable dates */
+.grid-dates-col {
+  flex: 1;
+  overflow-x: auto;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.grid-dates-col::-webkit-scrollbar { display: none; }
+.grid-dates-inner { min-width: max-content; }
+
+/* Header rows */
+.grid-names-header {
+  height: 40px; display: flex; align-items: center;
+  padding: 0 14px;
+  font-size: 10px; font-weight: 700; color: var(--outline);
+  text-transform: uppercase; letter-spacing: .08em;
+  border-bottom: 1px solid rgba(198,197,212,.15);
+  background: var(--surface-lowest);
+}
+.grid-dates-header {
+  display: flex; height: 40px;
+  border-bottom: 1px solid rgba(198,197,212,.15);
+  background: var(--surface-lowest);
+}
+.grid-day-header {
+  width: 32px; min-width: 32px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--on-surf-var);
+  position: relative;
+}
+.grid-day-header.today { color: var(--primary); }
+.grid-day-header.today::after {
+  content: ''; position: absolute; bottom: 5px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%; background: var(--primary);
+}
+
+/* Category rows */
+.grid-cat-name-cell {
+  height: 32px; display: flex; align-items: center;
+  padding: 0 14px; gap: 6px;
+  font-size: 11px; font-weight: 700; color: var(--primary);
+  background: var(--surface-low);
+  border-bottom: 1px solid rgba(198,197,212,.1);
+}
+.grid-cat-dates-row {
+  display: flex; height: 32px;
+  background: var(--surface-low);
+  border-bottom: 1px solid rgba(198,197,212,.1);
+}
+.grid-cat-date-fill {
+  width: 32px; min-width: 32px; flex-shrink: 0;
+}
+
+/* Habit name cells */
+.grid-name-cell {
+  height: 40px; display: flex; align-items: center;
+  padding: 0 14px;
+  font-size: 12px; font-weight: 500; color: var(--on-surface);
+  border-bottom: 1px solid rgba(198,197,212,.08);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  gap: 6px; cursor: default;
+}
+.grid-name-cell:last-child { border-bottom: none; }
+.grid-del-btn {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--outline); opacity: 0; transition: opacity .15s; flex-shrink: 0;
+  margin-left: auto; padding: 0;
+}
+.grid-name-cell:hover .grid-del-btn { opacity: 1; }
+.grid-del-btn .material-symbols-outlined { font-size: 12px; }
+
+/* Date cell rows */
+.grid-dates-row {
+  display: flex; height: 40px;
+  border-bottom: 1px solid rgba(198,197,212,.08);
+}
+.grid-dates-row:last-of-type { border-bottom: none; }
+
+/* Individual day cells */
+.grid-cell {
+  width: 32px; min-width: 32px; height: 40px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .12s; position: relative;
+  font-size: 13px; font-weight: 700;
+}
+.grid-cell:hover { background: var(--surface-low); }
+.grid-cell.future { cursor: default; opacity: .25; }
+.grid-cell.done::before, .grid-cell.skip::before {
+  content: ''; position: absolute; inset: 4px;
+  border-radius: 6px; z-index: 0;
+}
+.grid-cell.done::before { background: #2e7d32; }
+.grid-cell.skip::before { background: #c62828; }
+.grid-cell span { position: relative; z-index: 1; color: #fff; font-size: 12px; }
+.grid-cell:not(.done):not(.skip) span { display: none; }
+
+/* Add button row */
+.grid-add-name-cell {
+  height: 40px; display: flex; align-items: center;
+  padding: 0 14px;
+  border-top: 1px dashed rgba(198,197,212,.3);
+}
+.grid-add-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--primary);
+  font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 4px; padding: 0;
+}
+.grid-add-btn .material-symbols-outlined { font-size: 16px; }
+.grid-add-dates-row {
+  display: flex; height: 40px;
+  border-top: 1px dashed rgba(198,197,212,.3);
+}
+.grid-add-date-fill { width: 32px; min-width: 32px; flex-shrink: 0; }
+
+/* Scroll sync helper */
+.grid-scroll-wrap { overflow: hidden; }
+
+/* ── MOOD TRACKER ───────────────────────────────────────────────── */
+.mood-section {
+  background: var(--surface-lowest);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(27,27,33,.04);
+  border: 1px solid rgba(198,197,212,.1);
+  margin-bottom: 24px;
+}
+.mood-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.mood-title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 16px; color: var(--on-surface);
+}
+.mood-month {
+  font-size: 11px; font-weight: 600; color: var(--on-surf-var);
+}
+
+.mood-chart-wrap { display: flex; gap: 0; margin-bottom: 0; overflow: hidden; }
+.mood-labels {
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 8px 10px 8px 0; flex-shrink: 0;
+  min-width: 64px;
+}
+.mood-labels span {
+  font-size: 10px; font-weight: 600; color: var(--on-surf-var);
+  text-align: right; line-height: 1;
+}
+
+.mood-grid-scroll { overflow-x: auto; flex: 1; -ms-overflow-style: none; scrollbar-width: none; }
+.mood-grid-scroll::-webkit-scrollbar { display: none; }
+.mood-grid {
+  display: grid; grid-auto-flow: column;
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px; min-width: max-content; padding: 8px 0;
+  height: 100px;
+}
+.mood-cell {
+  width: 32px; height: 16px; border-radius: 4px;
+  background: var(--surface-high); cursor: pointer;
+  transition: all .15s; position: relative;
+}
+.mood-cell.selected {
+  background: var(--primary);
+}
+.mood-cell:hover { opacity: .75; }
+.mood-cell.today-col { background: color-mix(in srgb, var(--primary-fixed) 80%, transparent); }
+.mood-cell.today-col.selected { background: var(--primary); }
+
+/* Mood line chart */
+.mood-line-svg {
+  display: block; width: 100%; height: 60px;
+  margin-top: 8px;
+  overflow: visible;
+}

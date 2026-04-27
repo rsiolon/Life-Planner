@@ -421,15 +421,30 @@ function renderGoals() {
 
 // ── HABITS PAGE ────────────────────────────────────────────────
 function setHabitType(type) {
-  currentHabitType=type;
-  ['daily','weekly','monthly'].forEach(function(t){
-    var p=g('pill-'+t); if(p) p.classList.toggle('active',t===type);
+  currentHabitType = type;
+  ['daily','weekly','monthly'].forEach(function(t) {
+    var p = g('pill-'+t); if (p) p.classList.toggle('active', t === type);
   });
-  var eyebrows={daily:'Daily Curation',weekly:'Weekly Rituals',monthly:'Monthly Modules'};
-  var titles={daily:"Today's Rituals",weekly:"This Week's Focus",monthly:"This Month's Goals"};
-  g('habitsEyebrow').textContent=eyebrows[type];
-  g('habitsTitle').textContent=titles[type];
-  renderHabitList();
+  var eyebrows = {daily:'Daily Curation', weekly:'Weekly Rituals', monthly:'Monthly Modules'};
+  var titles   = {daily:"Today's Rituals", weekly:"This Week's Focus", monthly:"This Month's Goals"};
+  g('habitsEyebrow').textContent = eyebrows[type];
+  g('habitsTitle').textContent   = titles[type];
+
+  var cardEl = g('habitCatList');
+  var gridEl = g('habitGridView');
+
+  if (type === 'daily') {
+    // Daily always shows grid
+    if (cardEl) cardEl.style.display = 'none';
+    if (gridEl) gridEl.style.display = 'block';
+    renderGrid();
+    renderMoodTracker();
+  } else {
+    // Weekly / Monthly show card view
+    if (cardEl) cardEl.style.display = 'block';
+    if (gridEl) gridEl.style.display = 'none';
+    renderHabitList();
+  }
 }
 
 function renderHabits() {
@@ -508,8 +523,13 @@ function toggleHabit(tab,catId,id) {
   if(!goal.history) goal.history=[];
   var idx=goal.history.indexOf(key);
   if(idx!==-1) goal.history.splice(idx,1); else goal.history.push(key);
-  saveData(); renderHabitList();
-  if(currentTab==='dashboard') renderDashboard();
+  saveData();
+  if (currentHabitType === 'daily') {
+    renderGrid(); renderMoodTracker();
+  } else {
+    renderHabitList();
+  }
+  if (currentTab === 'dashboard') renderDashboard();
 }
 function toggleOnce(catId,id) {
   var goal=(S.yearly[catId]||[]).filter(function(x){return x.id===id;})[0];
@@ -631,6 +651,324 @@ function closeOverlay(id) { g(id).classList.remove('show'); }
 function showToast(msg) {
   var t=g('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+
+// ── GRID VIEW STATE ────────────────────────────────────────────
+var dailyView = 'card'; // 'card' or 'grid'
+var gridViewMonth = new Date(); // which month to show in grid
+
+var MOOD_LABELS = ['Happy','Content','Upset','Anxious','Tired'];
+// moodData: { 'YYYY-MM-DD': moodIndex (0-4) or null }
+
+function getMoodData() {
+  if (!S.moodData) S.moodData = {};
+  return S.moodData;
+}
+
+function setDailyView(view) {
+  dailyView = view;
+  var cardBtn = g('btnCardView'), gridBtn = g('btnGridView');
+  if (cardBtn) cardBtn.classList.toggle('active', view === 'card');
+  if (gridBtn) gridBtn.classList.toggle('active', view === 'grid');
+  var cardEl = g('habitCatList'), gridEl = g('habitGridView');
+  if (cardEl) cardEl.style.display = view === 'card' ? 'block' : 'none';
+  if (gridEl) gridEl.style.display = view === 'grid' ? 'block' : 'none';
+  if (view === 'grid') {
+    renderGrid();
+    renderMoodTracker();
+  }
+}
+
+// ── RENDER GRID ────────────────────────────────────────────────
+function renderGrid() {
+  var y = gridViewMonth.getFullYear();
+  var m = gridViewMonth.getMonth();
+  var daysInMonth = new Date(y, m+1, 0).getDate();
+  var todayStr = getToday();
+
+  var lbl = g('gridMonthLabel');
+  if (lbl) lbl.textContent = gridViewMonth.toLocaleDateString('id-ID', {month:'long', year:'numeric'});
+
+  var container = g('gridTable');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Outer wrapper with two-column layout
+  var wrap = document.createElement('div');
+  wrap.className = 'grid-wrap';
+
+  var layout = document.createElement('div');
+  layout.className = 'grid-layout';
+
+  // ── LEFT: sticky names column ──────────────────────────────
+  var namesCol = document.createElement('div');
+  namesCol.className = 'grid-names-col';
+
+  // ── RIGHT: scrollable dates column ─────────────────────────
+  var datesCol = document.createElement('div');
+  datesCol.className = 'grid-dates-col';
+  var datesInner = document.createElement('div');
+  datesInner.className = 'grid-dates-inner';
+
+  // ── HEADER ────────────────────────────────────────────────
+  // Left header
+  var namesHeader = document.createElement('div');
+  namesHeader.className = 'grid-names-header';
+  namesHeader.textContent = 'Habit';
+  namesCol.appendChild(namesHeader);
+
+  // Right header — day numbers
+  var datesHeader = document.createElement('div');
+  datesHeader.className = 'grid-dates-header';
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = y + '-' + pad(m+1) + '-' + pad(d);
+    var dh = document.createElement('div');
+    dh.className = 'grid-day-header' + (dateStr === todayStr ? ' today' : '');
+    dh.textContent = d;
+    datesHeader.appendChild(dh);
+  }
+  datesInner.appendChild(datesHeader);
+
+  // ── ROWS PER CATEGORY ─────────────────────────────────────
+  CATS.forEach(function(cat) {
+    var goals = S.daily[cat.id] || [];
+    if (!goals.length) return;
+
+    // Category separator — left
+    var catNameCell = document.createElement('div');
+    catNameCell.className = 'grid-cat-name-cell';
+    catNameCell.innerHTML = '<span>' + cat.icon + '</span>' + cat.label;
+    namesCol.appendChild(catNameCell);
+
+    // Category separator — right (empty filler row)
+    var catDatesRow = document.createElement('div');
+    catDatesRow.className = 'grid-cat-dates-row';
+    for (var i = 0; i < daysInMonth; i++) {
+      var fill = document.createElement('div');
+      fill.className = 'grid-cat-date-fill';
+      catDatesRow.appendChild(fill);
+    }
+    datesInner.appendChild(catDatesRow);
+
+    // Habit rows
+    goals.forEach(function(goal) {
+      // Left: name cell
+      var nameCell = document.createElement('div');
+      nameCell.className = 'grid-name-cell';
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = goal.text;
+      nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      nameCell.appendChild(nameSpan);
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'grid-del-btn';
+      delBtn.title = 'Hapus';
+      delBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+      delBtn.onclick = (function(catId, id) {
+        return function(e) {
+          e.stopPropagation();
+          delGoal('daily', catId, id);
+          renderGrid();
+        };
+      })(cat.id, goal.id);
+      nameCell.appendChild(delBtn);
+      namesCol.appendChild(nameCell);
+
+      // Right: date cells row
+      var datesRow = document.createElement('div');
+      datesRow.className = 'grid-dates-row';
+
+      for (var d2 = 1; d2 <= daysInMonth; d2++) {
+        var dateStr2 = y + '-' + pad(m+1) + '-' + pad(d2);
+        var isFuture = dateStr2 > todayStr;
+        var state = getGridCellState(goal, dateStr2);
+
+        var cell = document.createElement('div');
+        cell.className = 'grid-cell' + (isFuture ? ' future' : '') + (state ? ' ' + state : '');
+        if (state === 'done') cell.innerHTML = '<span>✓</span>';
+        else if (state === 'skip') cell.innerHTML = '<span>✗</span>';
+
+        if (!isFuture) {
+          cell.onclick = (function(gl, ds) {
+            return function() { cycleGridCell(gl, ds); };
+          })(goal, dateStr2);
+        }
+        datesRow.appendChild(cell);
+      }
+      datesInner.appendChild(datesRow);
+    });
+  });
+
+  // ── ADD BUTTON ROW ────────────────────────────────────────
+  var addNameCell = document.createElement('div');
+  addNameCell.className = 'grid-add-name-cell';
+  var addBtn2 = document.createElement('button');
+  addBtn2.className = 'grid-add-btn';
+  addBtn2.innerHTML = '<span class="material-symbols-outlined">add</span> Tambah';
+  addBtn2.onclick = function() { openAdd('daily', CATS[0].id); };
+  addNameCell.appendChild(addBtn2);
+  namesCol.appendChild(addNameCell);
+
+  var addDatesRow = document.createElement('div');
+  addDatesRow.className = 'grid-add-dates-row';
+  for (var i2 = 0; i2 < daysInMonth; i2++) {
+    var af = document.createElement('div'); af.className = 'grid-add-date-fill';
+    addDatesRow.appendChild(af);
+  }
+  datesInner.appendChild(addDatesRow);
+
+  // ── ASSEMBLE ─────────────────────────────────────────────
+  datesCol.appendChild(datesInner);
+  layout.appendChild(namesCol);
+  layout.appendChild(datesCol);
+  wrap.appendChild(layout);
+  container.appendChild(wrap);
+
+  // Scroll to today
+  var todayCol = Math.max(0, new Date().getDate() - 4);
+  datesCol.scrollLeft = todayCol * 32;
+}
+
+function getGridCellState(goal, dateStr) {
+  if (!goal.gridState) goal.gridState = {};
+  return goal.gridState[dateStr] || null; // null, 'done', 'skip'
+}
+
+function cycleGridCell(goal, dateStr) {
+  if (!goal.gridState) goal.gridState = {};
+  var current = goal.gridState[dateStr] || null;
+  // Cycle: null -> done -> skip -> null
+  if (current === null) {
+    goal.gridState[dateStr] = 'done';
+    // Also mark in history for compatibility
+    if (!goal.history) goal.history = [];
+    if (goal.history.indexOf(dateStr) === -1) goal.history.push(dateStr);
+  } else if (current === 'done') {
+    goal.gridState[dateStr] = 'skip';
+    // Remove from history
+    if (goal.history) {
+      var idx = goal.history.indexOf(dateStr);
+      if (idx !== -1) goal.history.splice(idx, 1);
+    }
+  } else {
+    delete goal.gridState[dateStr];
+  }
+  saveData();
+  renderGrid();
+}
+
+// ── MOOD TRACKER ───────────────────────────────────────────────
+function renderMoodTracker() {
+  var y = gridViewMonth.getFullYear();
+  var m = gridViewMonth.getMonth();
+  var daysInMonth = new Date(y, m+1, 0).getDate();
+  var todayStr = getToday();
+  var mood = getMoodData();
+
+  var moodLbl = g('moodMonthLabel');
+  if (moodLbl) moodLbl.textContent = gridViewMonth.toLocaleDateString('id-ID', {month:'long', year:'numeric'});
+
+  var moodGrid = g('moodGrid');
+  if (!moodGrid) return;
+  moodGrid.innerHTML = '';
+  moodGrid.style.gridTemplateColumns = 'repeat(' + daysInMonth + ', 32px)';
+
+  // Build grid: columns = days, rows = mood levels (0=Happy top, 4=Tired bottom)
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = y + '-' + pad(m+1) + '-' + pad(d);
+    var isFuture = dateStr > todayStr;
+    var selectedMood = mood[dateStr] !== undefined ? mood[dateStr] : null;
+    var isToday = dateStr === todayStr;
+
+    for (var level = 0; level < 5; level++) {
+      var cell = document.createElement('div');
+      cell.className = 'mood-cell' +
+        (selectedMood === level ? ' selected' : '') +
+        (isToday && selectedMood === null ? ' today-col' : '');
+
+      if (!isFuture) {
+        cell.onclick = (function(ds, lvl) {
+          return function() { setMood(ds, lvl); };
+        })(dateStr, level);
+      } else {
+        cell.style.opacity = '0.2';
+        cell.style.cursor = 'default';
+      }
+      moodGrid.appendChild(cell);
+    }
+  }
+
+  // Draw line chart
+  drawMoodLine(y, m, daysInMonth, mood, todayStr);
+}
+
+function setMood(dateStr, level) {
+  var mood = getMoodData();
+  // Toggle: click same = deselect
+  if (mood[dateStr] === level) delete mood[dateStr];
+  else mood[dateStr] = level;
+  saveData();
+  renderMoodTracker();
+}
+
+function drawMoodLine(y, m, daysInMonth, mood, todayStr) {
+  var svg = g('moodLineSvg');
+  if (!svg) return;
+  svg.innerHTML = '';
+
+  var points = [];
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = y + '-' + pad(m+1) + '-' + pad(d);
+    if (mood[dateStr] !== undefined && dateStr <= todayStr) {
+      var x = ((d - 0.5) / daysInMonth) * 310;
+      // Invert: Happy(0) at top (y=10), Tired(4) at bottom (y=90)
+      var y2 = 10 + (mood[dateStr] / 4) * 80;
+      points.push({x:x, y:y2, d:d});
+    }
+  }
+
+  if (points.length < 2) {
+    // Just dots
+    points.forEach(function(p) {
+      var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', '3');
+      circle.setAttribute('fill', 'var(--primary)');
+      svg.appendChild(circle);
+    });
+    return;
+  }
+
+  // Smooth polyline
+  var pathD = 'M ' + points[0].x + ' ' + points[0].y;
+  for (var i = 1; i < points.length; i++) {
+    var prev = points[i-1], curr = points[i];
+    var cpx = (prev.x + curr.x) / 2;
+    pathD += ' C ' + cpx + ' ' + prev.y + ' ' + cpx + ' ' + curr.y + ' ' + curr.x + ' ' + curr.y;
+  }
+
+  var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', pathD);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', 'var(--primary)');
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(path);
+
+  // Dots on data points
+  points.forEach(function(p) {
+    var dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', p.x);
+    dot.setAttribute('cy', p.y);
+    dot.setAttribute('r', '3');
+    dot.setAttribute('fill', 'var(--primary)');
+    dot.setAttribute('stroke', 'var(--surface-lowest)');
+    dot.setAttribute('stroke-width', '1.5');
+    svg.appendChild(dot);
+  });
 }
 
 // ── EVENTS ─────────────────────────────────────────────────────

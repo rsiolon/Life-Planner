@@ -226,7 +226,37 @@
         <span class="material-symbols-outlined">add</span> New Task
       </button>
     </div>
+
+    <!-- CARD VIEW (weekly/monthly) -->
     <div id="habitCatList"></div>
+
+    <!-- GRID VIEW (daily only) -->
+    <div id="habitGridView">
+      <div class="grid-month-label" id="gridMonthLabel"></div>
+      <div class="grid-scroll-wrap">
+        <div class="grid-table-wrap" id="gridTable"></div>
+      </div>
+      <!-- MOOD TRACKER -->
+      <div class="mood-section">
+        <div class="mood-header-row">
+          <h3 class="mood-title">Mood Tracker</h3>
+          <span class="mood-month" id="moodMonthLabel"></span>
+        </div>
+        <div class="mood-chart-wrap">
+          <div class="mood-labels">
+            <span>Happy</span>
+            <span>Content</span>
+            <span>Upset</span>
+            <span>Anxious</span>
+            <span>Tired</span>
+          </div>
+          <div class="mood-grid-scroll">
+            <div class="mood-grid" id="moodGrid"></div>
+          </div>
+        </div>
+        <svg class="mood-line-svg" id="moodLineSvg" viewBox="0 0 310 100" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
   </section>
 
 </main>
